@@ -136,5 +136,5 @@ void stopMotorC() {
 void stopAllMotors() {
   // Stop all motors
   stopMotorsAB();
-  stopMotorC();
+  stopMotorC(); 
 }
