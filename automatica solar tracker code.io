@@ -1,0 +1,140 @@
+// Motor one
+int enA = 5;
+int in1 = 9;
+int in2 = 8;
+
+// Motor two
+int enB = 10;
+int in3 = 7;
+int in4 = 6;
+
+// Motor three
+int enC = 3;
+int in5 = 11;
+int in6 = 12;
+
+// LDR pins
+int ldrPin1 = A0; // Connect LDR1 to analog pin A0
+int ldrPin2 = A1; // Connect LDR2 to analog pin A1
+int ldrPin3 = A2; // Connect LDR3 to analog pin A2
+int ldrPin4 = A3; // Connect LDR4 to analog pin A3
+
+// Light threshold
+int lightThreshold = 100;
+
+void setup() {
+  // Set all the motor control pins to outputs
+  pinMode(enA, OUTPUT);
+  pinMode(enB, OUTPUT);
+  pinMode(enC, OUTPUT);
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT);
+  pinMode(in5, OUTPUT);
+  pinMode(in6, OUTPUT);
+}
+
+void loop() {
+  // Read analog values from LDRs
+  int ldrValue1 = analogRead(ldrPin1);
+  int ldrValue2 = analogRead(ldrPin2);
+  int ldrValue3 = analogRead(ldrPin3);
+  int ldrValue4 = analogRead(ldrPin4);
+
+  // Check if light is detected by LDRs
+  bool lightDetected = (ldrValue1 > lightThreshold) && (ldrValue2 > lightThreshold) &&
+                       (ldrValue3 > lightThreshold) && (ldrValue4 > lightThreshold);
+
+  if (lightDetected) {
+    // Check the difference between the light levels of LDRs
+    int difference = ldrValue1 - ldrValue2;
+    int different = ldrValue3 - ldrValue4;
+
+    // Determine motor direction based on the difference in light levels
+    if (difference > lightThreshold) {
+      // LDR1 has higher light level, rotate motors A and B clockwise
+      rotateClockwise();
+    } else if (difference < -lightThreshold) {
+      // LDR2 has higher light level, rotate motors A and B counterclockwise
+      rotateCounterclockwise();
+    } else {
+      // Stop motors A and B
+      stopMotorsAB();
+    }
+
+    if (different > lightThreshold) {
+      // LDR3 has higher light level, rotate motor C forward
+      rotateForward();
+    } else if (different < -lightThreshold) {
+      // LDR4 has higher light level, rotate motor C backward
+      rotateBackward();
+    } else {
+      // Stop motor C
+      stopMotorC();
+    }
+  } else {
+    // No light detected, stop all motors
+    stopAllMotors();
+  }
+
+  delay(100); // Adjust delay as needed to prevent rapid changes
+}
+
+void rotateClockwise() {
+  // Motor A rotates clockwise
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);
+  analogWrite(enA, 80);
+
+  // Motor B rotates clockwise
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
+  analogWrite(enB, 80);
+}
+
+void rotateForward() {
+  // Motor C rotates forward
+  digitalWrite(in5, LOW);
+  digitalWrite(in6, HIGH);
+  analogWrite(enC, 60);
+}
+
+void rotateCounterclockwise() {
+  // Motor A rotates counterclockwise
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+  analogWrite(enA, 80);
+
+  // Motor B rotates counterclockwise
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
+  analogWrite(enB, 80);
+}
+
+void rotateBackward() {
+  // Motor C rotates backward
+  digitalWrite(in5, HIGH);
+  digitalWrite(in6, LOW);
+  analogWrite(enC, 60);
+}
+
+void stopMotorsAB() {
+  // Stop motors A and B
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
+}
+
+void stopMotorC() {
+  // Stop motor C
+  digitalWrite(in5, LOW);
+  digitalWrite(in6, LOW);
+}
+
+void stopAllMotors() {
+  // Stop all motors
+  stopMotorsAB();
+  stopMotorC();
+}
