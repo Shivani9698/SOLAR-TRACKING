@@ -28,6 +28,7 @@ int ldrPin4 = A3; // Connect LDR4 to analog pin A3
 int lightThreshold = 100;
 
 volatile bool manualControl = false;
+int manualSwitch = A5; // Connect the manual switch to digital pin 14
 
 void setup() {
   // Set all the motor control pins to outputs
@@ -44,6 +45,7 @@ void setup() {
   pinMode(pushButton1, INPUT_PULLUP);
   pinMode(pushButton2, INPUT_PULLUP);
   pinMode(pushButton3, INPUT_PULLUP);
+  pinMode(manualSwitch, INPUT_PULLUP); // Set the manual switch pin as input with internal pull-up resistor
 
   // Attach interrupts for manual control
   attachInterrupt(digitalPinToInterrupt(pushButton), manualControlHandler, FALLING);
@@ -53,6 +55,13 @@ void setup() {
 }
 
 void loop() {
+  // Check the state of the manual switch
+  if (digitalRead(manualSwitch) == LOW) {
+    // Toggle manual control mode
+    manualControl = !manualControl;
+    delay(200); // Debouncing delay
+  }
+
   if (!manualControl) {
     // Automatic operation based on LDR readings
     automaticOperation();
@@ -126,11 +135,11 @@ void manualOperation() {
   } else if (digitalRead(pushButton2) == LOW) {
     digitalWrite(in5, LOW);
     digitalWrite(in6, HIGH);
-    analogWrite(enC, 100); // Assuming PWM control for motor speed
+    analogWrite(enC, 50); // Assuming PWM control for motor speed
   } else if (digitalRead(pushButton3) == LOW) {
     digitalWrite(in6, LOW);
     digitalWrite(in5, HIGH);
-    analogWrite(enC, 100);
+    analogWrite(enC, 50);
   } else {
     stopAllMotors(); // Stop all motors if no buttons are pressed
   }
@@ -140,38 +149,38 @@ void rotateClockwise() {
   // Motor A rotates clockwise
   digitalWrite(in1, LOW);
   digitalWrite(in2, HIGH);
-  analogWrite(enA, 80);
+  analogWrite(enA, 100);
 
   // Motor B rotates clockwise
   digitalWrite(in3, LOW);
   digitalWrite(in4, HIGH);
-  analogWrite(enB, 60);
+  analogWrite(enB, 100);
 }
 
 void rotateForward() {
   // Motor C rotates forward
   digitalWrite(in5, LOW);
   digitalWrite(in6, HIGH);
-  analogWrite(enC, 60);
+  analogWrite(enC, 50);
 }
 
 void rotateCounterclockwise() {
   // Motor A rotates counterclockwise
   digitalWrite(in1, HIGH);
   digitalWrite(in2, LOW);
-  analogWrite(enA, 80);
+  analogWrite(enA, 100);
 
   // Motor B rotates counterclockwise
   digitalWrite(in3, HIGH);
   digitalWrite(in4, LOW);
-  analogWrite(enB, 60);
+  analogWrite(enB, 100);
 }
 
 void rotateBackward() {
   // Motor C rotates backward
   digitalWrite(in5, HIGH);
   digitalWrite(in6, LOW);
-  analogWrite(enC, 60);
+  analogWrite(enC, 50);
 }
 
 void stopMotorsAB() {
@@ -195,6 +204,5 @@ void stopAllMotors() {
 }
 
 void manualControlHandler() {
-  // Toggle manual control mode when any pushbutton is pressed
-  manualControl = !manualControl;
+  // Do nothing here since the manual control is handled in the loop based on the switch state
 }
